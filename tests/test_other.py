@@ -2,6 +2,7 @@ import sys
 import uuid
 from dataclasses import dataclass
 from enum import Enum, auto
+from functools import partial
 from hashlib import md5, sha1, sha256
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 
@@ -174,6 +175,31 @@ def test_equals_function_fail():
         assert 4 == c
 
     assert str(c) == 'FunctionCheck(foobar)'
+
+
+def test_equals_callable_object():
+    class IsEven:
+        def __call__(self, value):
+            return value % 2 == 0
+
+    predicate = IsEven()
+    check = FunctionCheck(predicate)
+
+    assert repr(check) == f'FunctionCheck({predicate!r})'
+    assert 4 == check
+    assert 5 != check
+
+
+def test_equals_partial_function():
+    def divisible_by(divisor, value):
+        return value % divisor == 0
+
+    predicate = partial(divisible_by, 3)
+    check = FunctionCheck(predicate)
+
+    assert repr(check) == f'FunctionCheck({predicate!r})'
+    assert 6 == check
+    assert 7 != check
 
 
 def test_json_both():
