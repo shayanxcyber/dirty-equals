@@ -12,6 +12,7 @@ from dirty_equals import (
     FunctionCheck,
     IsDataclass,
     IsDataclassType,
+    IsDict,
     IsEnum,
     IsHash,
     IsInt,
@@ -200,6 +201,22 @@ def test_equals_partial_function():
     assert repr(check) == f'FunctionCheck({predicate!r})'
     assert 6 == check
     assert 7 != check
+
+
+def test_named_callable_does_not_need_repr():
+    class Predicate:
+        __name__ = 'is_even'
+
+        def __call__(self, value):
+            return value % 2 == 0
+
+        def __repr__(self):
+            raise AssertionError('named predicates should use their name')
+
+    predicate = Predicate()
+
+    assert repr(FunctionCheck(predicate)) == 'FunctionCheck(is_even)'
+    assert repr(IsDict(a=1).settings(ignore=predicate)) == 'IsDict[ignore=is_even](a=1)'
 
 
 def test_json_both():

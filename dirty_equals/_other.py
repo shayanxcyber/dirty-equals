@@ -146,7 +146,7 @@ class FunctionCheck(DirtyEquals[Any]):
         ```
         """
         self.func = func
-        super().__init__(plain_repr(getattr(func, '__name__', repr(func))))
+        super().__init__(plain_repr(getattr(func, '__name__', None) or repr(func)))
 
     def equals(self, other: Any) -> bool:
         return self.func(other)
